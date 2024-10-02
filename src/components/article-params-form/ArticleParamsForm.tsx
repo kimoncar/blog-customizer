@@ -13,6 +13,7 @@ import {
 	ArticleStateType,
 	backgroundColors,
 	contentWidthArr,
+	defaultArticleState,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
@@ -31,6 +32,7 @@ export const ArticleParamsForm = ({
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const [formOptions, setFormOptions] = useState<ArticleStateType>(appState);
 
+	// Обработчик изменения видимости формы
 	function toggleOpen() {
 		setIsOpen((value) => !value);
 	}
@@ -56,6 +58,12 @@ export const ArticleParamsForm = ({
 			backgroundColor: formOptions.backgroundColor,
 			contentWidth: formOptions.contentWidth,
 		});
+	};
+
+	// Обработчик сброса настроек формы и статьи на дефолтные
+	const handlerResetToDefualt = () => {
+		setAppState(defaultArticleState);
+		setFormOptions(defaultArticleState);
 	};
 
 	return (
@@ -110,7 +118,12 @@ export const ArticleParamsForm = ({
 					/>
 
 					<div className={styles.bottomContainer}>
-						<Button title='Сбросить' htmlType='reset' type='clear' />
+						<Button
+							title='Сбросить'
+							htmlType='reset'
+							type='clear'
+							onClick={handlerResetToDefualt}
+						/>
 						<Button title='Применить' htmlType='submit' type='apply' />
 					</div>
 				</form>
