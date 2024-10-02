@@ -18,6 +18,7 @@ import {
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
+	OptionType,
 } from 'src/constants/articleProps';
 
 interface IArticleParamsForm {
@@ -31,6 +32,17 @@ export const ArticleParamsForm = ({
 }: IArticleParamsForm) => {
 	const [formState, setFormState] =
 		useState<ArticleStateType>(defaultArticleState);
+
+	// Обработчик изменения компонентов: select и radiogroup
+	const handlerComponentChange = (field: string) => {
+		return (value: OptionType) => {
+			setFormState((current) => ({
+				...current,
+				[field]: value,
+			}));
+		};
+	};
+
 	return (
 		<>
 			<ArrowButton isOpen={openState} onClick={handlerToggleOpen} />
@@ -48,12 +60,7 @@ export const ArticleParamsForm = ({
 						title='Шрифт'
 						selected={formState.fontFamilyOption}
 						options={fontFamilyOptions}
-						onChange={(selected) =>
-							setFormState((current) => ({
-								...current,
-								fontFamilyOption: selected,
-							}))
-						}
+						onChange={handlerComponentChange('fontFamilyOption')}
 					/>
 
 					<RadioGroup
@@ -61,12 +68,14 @@ export const ArticleParamsForm = ({
 						options={fontSizeOptions}
 						selected={formState.fontSizeOption}
 						title='Размер шрифта'
+						onChange={handlerComponentChange('fontSizeOption')}
 					/>
 
 					<Select
 						title='Цвет шрифта'
 						selected={formState.fontColor}
 						options={fontColors}
+						onChange={handlerComponentChange('fontColor')}
 					/>
 
 					<Separator />
@@ -75,12 +84,14 @@ export const ArticleParamsForm = ({
 						title='Цвет фона'
 						selected={formState.backgroundColor}
 						options={backgroundColors}
+						onChange={handlerComponentChange('backgroundColor')}
 					/>
 
 					<Select
 						title='Ширина контента'
 						selected={formState.contentWidth}
 						options={contentWidthArr}
+						onChange={handlerComponentChange('contentWidth')}
 					/>
 
 					<div className={styles.bottomContainer}>
