@@ -1,6 +1,5 @@
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
-
 import { Text } from 'src/ui/text';
 import { Select } from 'src/ui/select';
 import { RadioGroup } from 'src/ui/radio-group';
@@ -8,7 +7,7 @@ import { Separator } from 'src/ui/separator';
 
 import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import {
 	ArticleStateType,
 	backgroundColors,
@@ -19,6 +18,7 @@ import {
 	fontSizeOptions,
 	OptionType,
 } from 'src/constants/articleProps';
+import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
 
 interface IArticleParamsForm {
 	appState: ArticleStateType;
@@ -31,11 +31,6 @@ export const ArticleParamsForm = ({
 }: IArticleParamsForm) => {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const [formOptions, setFormOptions] = useState<ArticleStateType>(appState);
-
-	// Обработчик изменения видимости формы
-	function toggleOpen() {
-		setIsOpen((value) => !value);
-	}
 
 	// Обработчик изменения выбора компонентов: select и radiogroup
 	const handlerComponentChange = (field: string) => {
@@ -61,15 +56,24 @@ export const ArticleParamsForm = ({
 	};
 
 	// Обработчик сброса настроек формы и статьи на дефолтные
-	const handlerResetToDefualt = () => {
+	const handlerResetToDefault = () => {
 		setAppState(defaultArticleState);
 		setFormOptions(defaultArticleState);
 	};
 
+	// Обработчик клика вне области формы
+	const rootRef = useRef<HTMLDivElement>(null);
+	useOutsideClickClose({
+		isOpen,
+		rootRef,
+		onChange: () => setIsOpen(false),
+	});
+
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={toggleOpen} />
+			<ArrowButton isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
 			<aside
+				ref={rootRef}
 				className={clsx({
 					[styles.container]: true,
 					[styles.container_open]: isOpen,
@@ -122,7 +126,7 @@ export const ArticleParamsForm = ({
 							title='Сбросить'
 							htmlType='reset'
 							type='clear'
-							onClick={handlerResetToDefualt}
+							onClick={handlerResetToDefault}
 						/>
 						<Button title='Применить' htmlType='submit' type='apply' />
 					</div>
