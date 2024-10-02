@@ -1,6 +1,5 @@
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
-import { OnClick } from 'src/ui/arrow-button/ArrowButton';
 
 import { Text } from 'src/ui/text';
 import { Select } from 'src/ui/select';
@@ -9,12 +8,11 @@ import { Separator } from 'src/ui/separator';
 
 import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import {
 	ArticleStateType,
 	backgroundColors,
 	contentWidthArr,
-	defaultArticleState,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
@@ -22,43 +20,60 @@ import {
 } from 'src/constants/articleProps';
 
 interface IArticleParamsForm {
-	openState: boolean;
-	handlerToggleOpen: OnClick;
+	appState: ArticleStateType;
+	setAppState: React.Dispatch<React.SetStateAction<ArticleStateType>>;
 }
 
 export const ArticleParamsForm = ({
-	openState,
-	handlerToggleOpen,
+	appState,
+	setAppState,
 }: IArticleParamsForm) => {
-	const [formState, setFormState] =
-		useState<ArticleStateType>(defaultArticleState);
+	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [formOptions, setFormOptions] = useState<ArticleStateType>(appState);
 
-	// Обработчик изменения компонентов: select и radiogroup
+	function toggleOpen() {
+		setIsOpen((value) => !value);
+	}
+
+	// Обработчик изменения выбора компонентов: select и radiogroup
 	const handlerComponentChange = (field: string) => {
 		return (value: OptionType) => {
-			setFormState((current) => ({
+			setFormOptions((current) => ({
 				...current,
 				[field]: value,
 			}));
 		};
 	};
 
+	// Обработчик отправки формы
+	const handlerSubmitForm = (evt: FormEvent<HTMLFormElement>) => {
+		evt.preventDefault();
+		setAppState({
+			...appState,
+			fontFamilyOption: formOptions.fontFamilyOption,
+			fontSizeOption: formOptions.fontSizeOption,
+			fontColor: formOptions.fontColor,
+			backgroundColor: formOptions.backgroundColor,
+			contentWidth: formOptions.contentWidth,
+		});
+	};
+
 	return (
 		<>
-			<ArrowButton isOpen={openState} onClick={handlerToggleOpen} />
+			<ArrowButton isOpen={isOpen} onClick={toggleOpen} />
 			<aside
 				className={clsx({
 					[styles.container]: true,
-					[styles.container_open]: openState,
+					[styles.container_open]: isOpen,
 				})}>
-				<form className={styles.form}>
+				<form className={styles.form} onSubmit={handlerSubmitForm}>
 					<Text as='h1' size={31} weight={800} uppercase={true}>
 						Задайте параметры
 					</Text>
 
 					<Select
 						title='Шрифт'
-						selected={formState.fontFamilyOption}
+						selected={formOptions.fontFamilyOption}
 						options={fontFamilyOptions}
 						onChange={handlerComponentChange('fontFamilyOption')}
 					/>
@@ -66,14 +81,14 @@ export const ArticleParamsForm = ({
 					<RadioGroup
 						name='fontSizeOptions'
 						options={fontSizeOptions}
-						selected={formState.fontSizeOption}
+						selected={formOptions.fontSizeOption}
 						title='Размер шрифта'
 						onChange={handlerComponentChange('fontSizeOption')}
 					/>
 
 					<Select
 						title='Цвет шрифта'
-						selected={formState.fontColor}
+						selected={formOptions.fontColor}
 						options={fontColors}
 						onChange={handlerComponentChange('fontColor')}
 					/>
@@ -82,14 +97,14 @@ export const ArticleParamsForm = ({
 
 					<Select
 						title='Цвет фона'
-						selected={formState.backgroundColor}
+						selected={formOptions.backgroundColor}
 						options={backgroundColors}
 						onChange={handlerComponentChange('backgroundColor')}
 					/>
 
 					<Select
 						title='Ширина контента'
-						selected={formState.contentWidth}
+						selected={formOptions.contentWidth}
 						options={contentWidthArr}
 						onChange={handlerComponentChange('contentWidth')}
 					/>
